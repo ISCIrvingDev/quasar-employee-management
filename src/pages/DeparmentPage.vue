@@ -1,22 +1,55 @@
 <template>
   <q-page padding>
     <q-card class="page-height">
-      <q-card-section>
+      <q-card-section class="bg-primary-gradient text-accent">
         <div class="text-h5">{{ title }}</div>
       </q-card-section>
 
       <q-card-section>
-        <q-btn color="primary" label="Add Record" @click="openDialog()" />
+        <q-btn
+          color="secondary"
+          text-color="secondary"
+          outline
+          label="Add Record"
+          @click="openDialog()"
+        />
       </q-card-section>
 
       <q-card-section>
-        <q-table :rows="records" :columns="columns" row-key="id">
+        <!-- https://quasar.dev/vue-components/table#styling
+        https://quasar.dev/style/color-palette#color-list -->
+        <q-table
+          :rows="records"
+          :columns="columns"
+          row-key="id"
+          color="accent"
+          table-class="text-grey-8 bg-white"
+          table-header-class="bg-primary-gradient text-accent"
+          title="Department records"
+          card-class="bg-primary-gradient text-accent"
+        >
           <template v-slot:body-cell-actions="props">
             <q-td class="text-center">
-              <q-btn color="primary" flat dense icon="edit" @click="openDialog(props.row)" />
+              <q-btn
+                color="secondary"
+                flat
+                round
+                dense
+                icon="description"
+                @click="openDialog(props.row)"
+              />
+              <q-btn
+                color="secondary"
+                flat
+                round
+                dense
+                icon="edit"
+                @click="openDialog(props.row)"
+              />
               <q-btn
                 color="negative"
                 flat
+                round
                 dense
                 icon="delete"
                 @click="deleteRecord(props.row.id)"
@@ -61,6 +94,9 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import type { QTableProps } from 'quasar'
 
+const route = useRoute()
+
+// Modelos
 interface Record {
   id: number
   createdAt: string
@@ -70,34 +106,91 @@ interface Record {
   description: string
 }
 
-const route = useRoute()
+// Titulo de la "Page"
+const title = computed(() => (route.meta.title as string) || 'Employee Management')
 
-const title = computed(() => (route.meta.title as string) || 'Default Title')
-
+// Todos los registros de la tabla
 const records = ref<Record[]>([])
+
+// Valor del modal
 const isDialogOpen = ref(false)
+
+// Valor del "mode": "edit" || "new"
 const editMode = ref(false)
+
+// Valor del registro actual seleccionado (ya sea en "edit" o en "new")
 const formData = ref<Partial<Record>>({})
 
+// Columnas del Data Table
 const columns: QTableProps['columns'] = [
-  { name: 'id', label: 'ID', field: 'id', align: 'center', sortable: true },
-  { name: 'createdAt', label: 'Created At', field: 'createdAt', align: 'center', sortable: true },
-  { name: 'updatedAt', label: 'Updated At', field: 'updatedAt', align: 'center', sortable: true },
-  { name: 'key', label: 'Key', field: 'key', align: 'center', sortable: true },
-  { name: 'name', label: 'Name', field: 'name', align: 'center', sortable: true },
-  { name: 'description', label: 'Description', field: 'description', align: 'center' },
-  { name: 'actions', label: 'Actions', field: 'actions', align: 'center' },
+  {
+    name: 'id',
+    label: 'ID',
+    field: 'id',
+    align: 'center',
+    sortable: true,
+    classes: 'trunc-text max-col-width',
+  },
+  {
+    name: 'createdAt',
+    label: 'Created At',
+    field: 'createdAt',
+    align: 'center',
+    classes: 'trunc-text max-col-width',
+    sortable: true,
+  },
+  {
+    name: 'updatedAt',
+    label: 'Updated At',
+    field: 'updatedAt',
+    align: 'center',
+    classes: 'trunc-text max-col-width',
+    sortable: true,
+  },
+  {
+    name: 'key',
+    label: 'Key',
+    field: 'key',
+    align: 'center',
+    classes: 'trunc-text max-col-width',
+    sortable: true,
+  },
+  {
+    name: 'name',
+    label: 'Name',
+    field: 'name',
+    align: 'center',
+    classes: 'trunc-text max-col-width',
+    sortable: true,
+  },
+  {
+    name: 'description',
+    label: 'Description',
+    field: 'description',
+    align: 'center',
+    classes: 'trunc-text max-col-width',
+  },
+  {
+    name: 'actions',
+    label: 'Actions',
+    field: 'actions',
+    align: 'center',
+    classes: 'trunc-text max-col-width',
+  },
 ]
 
+// Dialog Handler
 const openDialog = (record?: Record) => {
-  editMode.value = !!record
-  formData.value = record ? { ...record } : { key: '', name: '', description: '' }
-  isDialogOpen.value = true
+  editMode.value = !!record // Si hay "record", editMode es true (edit mode), de lo contrario es false (new mode)
+  formData.value = record ? { ...record } : { key: '', name: '', description: '' } // Si hay "record", registra los nuevos valores (edit mode), de lo contrario todos los valores son reseteados con su valor por defecto (new mode)
+  isDialogOpen.value = true // Modal abierto
 }
 
+// Metodos del "Presenter"
 const saveRecord = () => {
   if (editMode.value && formData.value.id) {
     const index = records.value.findIndex((r) => r.id === formData.value.id)
+
     if (index !== -1) {
       records.value[index] = {
         ...formData.value,
@@ -114,6 +207,7 @@ const saveRecord = () => {
       description: formData.value.description,
     })
   }
+
   isDialogOpen.value = false
 }
 
@@ -122,15 +216,4 @@ const deleteRecord = (id: number) => {
 }
 </script>
 
-<style lang="scss" scoped>
-.q-table {
-  thead {
-    background-color: red;
-    color: white;
-  }
-}
-// .q-table thead {
-//   background-color: red;
-//   color: white;
-// }
-</style>
+<style lang="scss" scoped></style>
