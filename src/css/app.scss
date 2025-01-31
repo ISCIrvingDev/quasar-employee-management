@@ -1,4 +1,30 @@
 // app global css in SCSS form
+// Color gradiante principal
+.bg-primary-gradient {
+  background: #00b4db; /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #0083b0, #00b4db); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(
+    to right,
+    #0083b0,
+    #00b4db
+  ); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+}
+
+// Altura de una pagina
 .page-height {
   min-height: 88vh;
+  max-height: 92vh;
+}
+
+// Dimensiones maximas de una columna en un Data Table
+.max-col-width {
+  max-width: 200px;
+}
+
+// Ref: https://codefrontend.com/css-ellipsis
+// Limites de texto en un campo
+.trunc-text {
+  text-overflow: ellipsis; /* enables ellipsis */
+  white-space: nowrap; /* keeps the text in a single line */
+  overflow: hidden; /* keeps the element from overflowing its parent */
 }

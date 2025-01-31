@@ -1,6 +1,6 @@
 <template>
   <q-layout view="hHh lpR lFf">
-    <q-header elevated class="bg-primary text-white">
+    <q-header elevated class="bg-primary-gradient text-accent">
       <q-toolbar>
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
 
@@ -26,7 +26,7 @@
       <router-view />
     </q-page-container>
 
-    <q-footer reveal elevated class="bg-grey-8 text-white">
+    <q-footer reveal elevated class="bg-primary-gradient text-accent">
       <q-toolbar>
         <q-toolbar-title>
           <q-avatar>
