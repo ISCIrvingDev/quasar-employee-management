@@ -58,7 +58,11 @@ export default defineConfig((ctx) => {
 
       // publicPath: '/',
       // analyze: true,
-      // env: {},
+      env: {
+        API_BASE_URL: ctx.dev
+          ? 'http://localhost:3000/api'
+          : 'https://prod.api.com/api'
+      },
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,
@@ -96,6 +100,7 @@ export default defineConfig((ctx) => {
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#devserver
     devServer: {
       // https: true,
+      vueDevtools: true,
       open: true // opens browser window automatically
     },
 

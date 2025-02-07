@@ -141,6 +141,8 @@ import { computed, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import type { QTableProps } from 'quasar'
 
+console.log('URL del API: ', process.env.API_BASE_URL)
+
 const route = useRoute()
 
 // Modelos
