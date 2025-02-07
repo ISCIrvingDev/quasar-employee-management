@@ -11,7 +11,7 @@
           text-color="secondary"
           outline
           label="Add Record"
-          @click="openDialog()"
+          @click="openDialogEditAdd()"
         />
       </q-card-section>
 
@@ -21,6 +21,7 @@
         <q-table
           :rows="records"
           :columns="columns"
+          separator="cell"
           row-key="id"
           color="accent"
           table-class="text-grey-8 bg-white"
@@ -36,7 +37,7 @@
                 round
                 dense
                 icon="description"
-                @click="openDialog(props.row)"
+                @click="openDialogDetails(props.row)"
               />
               <q-btn
                 color="secondary"
@@ -44,7 +45,7 @@
                 round
                 dense
                 icon="edit"
-                @click="openDialog(props.row)"
+                @click="openDialogEditAdd(props.row)"
               />
               <q-btn
                 color="negative"
@@ -52,7 +53,7 @@
                 round
                 dense
                 icon="delete"
-                @click="deleteRecord(props.row.id)"
+                @click="openDialogDelete(props.row.id)"
               />
             </q-td>
           </template>
@@ -60,8 +61,34 @@
       </q-card-section>
     </q-card>
 
-    <!-- Dialogo para formulario -->
-    <q-dialog v-model="isDialogOpen">
+    <!-- Dialogo para formulario Details -->
+    <q-dialog v-model="isDialogOpenDetails">
+      <q-card style="min-width: 400px">
+        <q-card-section>
+          <div class="text-h6">Record Details</div>
+        </q-card-section>
+
+        <q-card-section>
+          <q-form>
+            <q-input v-model="formData.key" label="Key" required readonly />
+            <q-input v-model="formData.name" label="Name" required readonly />
+            <q-input
+              v-model="formData.description"
+              label="Description"
+              type="textarea"
+              required
+              readonly
+            />
+            <div class="q-mt-md">
+              <q-btn color="primary" label="Close" @click="isDialogOpenDetails = false" outline />
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
+    <!-- Dialogo para formulario Edit/Add -->
+    <q-dialog v-model="isDialogEditAddOpen">
       <q-card style="min-width: 400px">
         <q-card-section>
           <div class="text-h6">{{ editMode ? 'Edit Record' : 'Add Record' }}</div>
@@ -73,14 +100,34 @@
             <q-input v-model="formData.name" label="Name" required />
             <q-input v-model="formData.description" label="Description" type="textarea" required />
             <div class="q-mt-md">
-              <q-btn type="submit" color="primary" label="Guardar" />
+              <q-btn type="submit" color="primary" label="Guardar" outline />
               <q-btn
                 color="negative"
                 label="Cancelar"
                 flat
-                @click="isDialogOpen = false"
+                @click="isDialogEditAddOpen = false"
                 class="q-ml-md"
               />
+            </div>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
+    <!-- Dialogo para confirmar Delete -->
+    <q-dialog v-model="isDialogDeleteOpen">
+      <q-card style="min-width: 400px">
+        <q-card-section>
+          <div class="text-h6">Delete Record</div>
+        </q-card-section>
+
+        <q-card-section>
+          <q-form @submit.prevent="deleteRecord">
+            <div>Delete record with ID: {{ idDeleteRecord }}?</div>
+
+            <div class="q-mt-md">
+              <q-btn color="primary" label="Cancel" outline @click="isDialogDeleteOpen = false" />
+              <q-btn type="submit" color="negative" label="Delete" flat class="q-ml-md" />
             </div>
           </q-form>
         </q-card-section>
@@ -112,14 +159,23 @@ const title = computed(() => (route.meta.title as string) || 'Employee Managemen
 // Todos los registros de la tabla
 const records = ref<Record[]>([])
 
-// Valor del modal
-const isDialogOpen = ref(false)
+// Valor del modal Edit/Add
+const isDialogEditAddOpen = ref(false)
+
+// Valor del modal Details
+const isDialogOpenDetails = ref(false)
+
+// Valor del modal Delete
+const isDialogDeleteOpen = ref(false)
 
 // Valor del "mode": "edit" || "new"
 const editMode = ref(false)
 
 // Valor del registro actual seleccionado (ya sea en "edit" o en "new")
 const formData = ref<Partial<Record>>({})
+
+// Valor del registro actual seleccionado (ya sea en "edit" o en "new")
+const idDeleteRecord = ref<number>(0)
 
 // Columnas del Data Table
 const columns: QTableProps['columns'] = [
@@ -179,11 +235,24 @@ const columns: QTableProps['columns'] = [
   },
 ]
 
-// Dialog Handler
-const openDialog = (record?: Record) => {
+// Dialog Edit/Add Handler
+const openDialogEditAdd = (record?: Record) => {
   editMode.value = !!record // Si hay "record", editMode es true (edit mode), de lo contrario es false (new mode)
   formData.value = record ? { ...record } : { key: '', name: '', description: '' } // Si hay "record", registra los nuevos valores (edit mode), de lo contrario todos los valores son reseteados con su valor por defecto (new mode)
-  isDialogOpen.value = true // Modal abierto
+  isDialogEditAddOpen.value = true // Modal abierto
+}
+
+// Dialog Details Handler
+const openDialogDetails = (record?: Record) => {
+  formData.value = record // { ...record }
+  isDialogOpenDetails.value = true // Modal abierto
+}
+
+// Dialog Delete Handler
+const openDialogDelete = (id: number) => {
+  isDialogDeleteOpen.value = true // Modal abierto
+
+  idDeleteRecord.value = id
 }
 
 // Metodos del "Presenter"
@@ -208,11 +277,15 @@ const saveRecord = () => {
     })
   }
 
-  isDialogOpen.value = false
+  isDialogEditAddOpen.value = false
 }
 
-const deleteRecord = (id: number) => {
+const deleteRecord = () => {
+  const id = idDeleteRecord.value
+
   records.value = records.value.filter((r) => r.id !== id)
+
+  isDialogDeleteOpen.value = false
 }
 </script>
 
