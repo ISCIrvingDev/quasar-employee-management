@@ -19,7 +19,7 @@
         <!-- https://quasar.dev/vue-components/table#styling
         https://quasar.dev/style/color-palette#color-list -->
         <q-table
-          :rows="records"
+          :rows="rows"
           :columns="columns"
           separator="cell"
           row-key="id"
@@ -137,7 +137,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue'
+import { computed, inject } from 'vue'
 import { useRoute } from 'vue-router'
 import {
   useInit,
@@ -150,19 +150,16 @@ import {
   useDeleteRecord,
 } from './department.composables'
 import { columns } from './department.constants'
+/*
+ * Contract & Keys
+ */
+import type { IDeparmentContract } from 'src/application/api/services/department.contract'
+import { DeparmentKey } from 'src/application/api/services/api.keys'
 
-// --------------------------------
-onMounted(async () => {
-  // const res = await GetXxx()
-  // console.log('1) Resultado del API: ', res)
-})
-// --------------------------------
-
-// Router
-const route = useRoute()
-
-// Titulo de la "Page"
-const title = computed(() => (route.meta.title as string) || 'Employee Management')
+/*
+ * Services
+ */
+const deparmentService = inject<IDeparmentContract>(DeparmentKey)
 
 /*
  * Vue Reactivity
@@ -170,12 +167,18 @@ const title = computed(() => (route.meta.title as string) || 'Employee Managemen
 const {
   editMode,
   formData,
-  records,
+  rows,
   idDeleteRecord,
   isDialogEditAddOpen,
   isDialogDeleteOpen,
   isDialogOpenDetails,
-} = useInit()
+} = useInit(deparmentService)
+
+// Router
+const route = useRoute()
+
+// Titulo de la "Page"
+const title = computed(() => (route.meta.title as string) || 'Employee Management')
 </script>
 
 <style lang="scss" scoped></style>

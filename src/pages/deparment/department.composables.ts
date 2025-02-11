@@ -6,7 +6,19 @@ import type { Record } from './deparment.models'
 /*
  * Vue Reactivity
  */
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+
+/*
+ * Contract
+ */
+import type { IDeparmentContract } from 'src/application/api/services/department.contract'
+
+/*
+ * Quasar Plugings:
+ * Notify
+ */
+import type { QNotifyUpdateOptions } from 'quasar'
+import { Notify } from 'quasar'
 
 /*
  * Variables
@@ -18,7 +30,7 @@ const editMode = ref(false)
 const formData = ref<Partial<Record>>({})
 
 // Todos los registros de la tabla
-const records = ref<Record[]>([])
+const rows = ref<Record[]>([])
 
 // Valor del registro actual seleccionado (ya sea en "edit" o en "new")
 const idDeleteRecord = ref<number>(0)
@@ -35,13 +47,53 @@ const isDialogOpenDetails = ref(false)
 /*
  * Variables reactivas
  */
-export function useInit() {
-  console.log('URL del API: ', process.env.API_BASE_URL)
+export function useInit(deparmentService: IDeparmentContract) {
+  // -------------------------------------------------------------
+  // Agregar aqui la logica para implementar el "get" de la BD
+  /*
+   * Metodos del "Service"
+   */
+  onMounted(async () => {
+    let dismiss: (props?: QNotifyUpdateOptions) => void
+
+    try {
+      dismiss = Notify.create({
+        spinner: true,
+        type: 'info',
+        message: 'Loading...',
+        position: 'top-right',
+        timeout: 0,
+      })
+
+      const res = await deparmentService.getAllDepartments()
+      console.log('1) Resultado del API: ', res)
+
+      // 2) Aqui me quede: Hacer la transformacion con class-transformer
+      rows.value = res as unknown as Record[]
+    } catch (error) {
+      console.error('department.composables.ts - deparmentService.getAllDepartments:')
+      console.error(error)
+      // const err = error as AppResponseModel<AppErrorResponseModel>
+
+      Notify.create({
+        type: 'negative',
+        // message: err.data.message.toString(),
+        // // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        // message: String(error),
+        message: 'Please contact the software team',
+        position: 'top-right',
+        timeout: 5000,
+      })
+    } finally {
+      dismiss()
+    }
+  })
+  // -------------------------------------------------------------
 
   return {
     editMode,
     formData,
-    records,
+    rows,
     idDeleteRecord,
     isDialogEditAddOpen,
     isDialogDeleteOpen,
@@ -77,16 +129,22 @@ export function useOpenDialogDelete(id: number) {
  */
 export function useSaveRecord() {
   if (editMode.value && formData.value.id) {
-    const index = records.value.findIndex((r) => r.id === formData.value.id)
+    const index = rows.value.findIndex((r) => r.id === formData.value.id)
 
     if (index !== -1) {
-      records.value[index] = {
+      // -------------------------------------------------------------
+      // Agregar aqui la logica para implementar el "update" en la BD
+      // -------------------------------------------------------------
+      rows.value[index] = {
         ...formData.value,
         updatedAt: new Date().toISOString(),
       } as Record
     }
   } else {
-    records.value.push({
+    // -------------------------------------------------------------
+    // Agregar aqui la logica para implementar el "create" en la BD
+    // -------------------------------------------------------------
+    rows.value.push({
       id: Date.now(),
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -100,9 +158,12 @@ export function useSaveRecord() {
 }
 
 export function useDeleteRecord() {
+  // -------------------------------------------------------------
+  // Agregar aqui la logica para implementar el "delete" en la BD
+  // -------------------------------------------------------------
   const id = idDeleteRecord.value
 
-  records.value = records.value.filter((r) => r.id !== id)
+  rows.value = rows.value.filter((r) => r.id !== id)
 
   isDialogDeleteOpen.value = false
 }
