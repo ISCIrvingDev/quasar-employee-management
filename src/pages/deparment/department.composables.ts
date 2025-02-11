@@ -20,6 +20,7 @@ import type { IDeparmentContract } from 'src/application/api/services/department
 import type { QNotifyUpdateOptions } from 'quasar'
 import { Notify } from 'quasar'
 import { NewDepartmentDtoExtensions } from 'src/application/api/services/dtos/extensions/new-department-dto.extension'
+import { GetDepartmentDtoExtensions } from 'src/application/api/services/dtos/extensions/get-department-dto.extension'
 
 /*
  * Variables
@@ -67,10 +68,10 @@ export function useInit(deparmentService: IDeparmentContract) {
       })
 
       const res = await deparmentService.getAllDepartments()
-      console.log('1) Resultado del API: ', res)
+      console.info('Resultado del API - deparmentService.getAllDepartments: ', res)
 
       rows.value = res.map((e) => {
-        return NewDepartmentDtoExtensions.toRecord(e)
+        return GetDepartmentDtoExtensions.toRecord(e)
       })
     } catch (error) {
       console.error('department.composables.ts - deparmentService.getAllDepartments:')
@@ -129,43 +130,174 @@ export function useOpenDialogDelete(id: number) {
 /*
  * Metodos del "Service"
  */
-export function useSaveRecord() {
+export async function useSaveRecord(deparmentService: IDeparmentContract) {
+  const body = NewDepartmentDtoExtensions.fromRecord(formData.value as Record)
+
   if (editMode.value && formData.value.id) {
     const index = rows.value.findIndex((r) => r.id === formData.value.id)
 
     if (index !== -1) {
+      /*
+       * Version Hardcodeada
+       * Logica previa del "Presenter"
+       */
+      // rows.value[index] = {
+      //   ...formData.value,
+      //   updatedAt: new Date().toISOString(),
+      // } as Record
+
+      /*
+       * Version completa (sin hardcode)
+       */
       // -------------------------------------------------------------
       // Agregar aqui la logica para implementar el "update" en la BD
+      /*
+       * Metodos del "Service"
+       */
+      let dismiss: (props?: QNotifyUpdateOptions) => void
+
+      try {
+        dismiss = Notify.create({
+          spinner: true,
+          type: 'info',
+          message: 'Loading...',
+          position: 'top-right',
+          timeout: 0,
+        })
+
+        const res = await deparmentService.updateDepartmentById(formData.value.id, body)
+        console.info('Resultado del API - deparmentService.updateDepartmentById: ', res)
+
+        // Nuevo valor en el "Presenter"
+        rows.value[index] = GetDepartmentDtoExtensions.toRecord(res)
+      } catch (error) {
+        console.error('department.composables.ts - deparmentService.updateDepartmentById:')
+        console.error(error)
+
+        Notify.create({
+          type: 'negative',
+          message: 'Please contact the software team',
+          position: 'top-right',
+          timeout: 5000,
+        })
+      } finally {
+        dismiss()
+      }
       // -------------------------------------------------------------
-      rows.value[index] = {
-        ...formData.value,
-        updatedAt: new Date().toISOString(),
-      } as Record
     }
   } else {
+    /*
+     * Version Hardcodeada
+     * Logica previa del "Presenter"
+     */
+    // rows.value.push({
+    //   id: Date.now(),
+    //   createdAt: new Date().toISOString(),
+    //   updatedAt: new Date().toISOString(),
+    //   key: formData.value.key,
+    //   name: formData.value.name,
+    //   description: formData.value.description,
+    // })
+
+    /*
+     * Version completa (sin hardcode)
+     */
     // -------------------------------------------------------------
     // Agregar aqui la logica para implementar el "create" en la BD
+    let dismiss: (props?: QNotifyUpdateOptions) => void
+
+    try {
+      dismiss = Notify.create({
+        spinner: true,
+        type: 'info',
+        message: 'Loading...',
+        position: 'top-right',
+        timeout: 0,
+      })
+
+      const res = await deparmentService.createDepartment(body)
+      console.info('Resultado del API - deparmentService.createDepartment: ', res)
+
+      // Nuevo valor en el "Presenter"
+      const newVal = GetDepartmentDtoExtensions.toRecord(res)
+
+      rows.value.push(newVal)
+      // rows.value.push({
+      //   id: newVal.id,
+      //   createdAt: newVal.createdAt,
+      //   updatedAt: newVal.updatedAt,
+      //   key: newVal.key,
+      //   name: newVal.name,
+      //   description: newVal.description,
+      // })
+    } catch (error) {
+      console.error('department.composables.ts - deparmentService.updateDepartmentById:')
+      console.error(error)
+
+      Notify.create({
+        type: 'negative',
+        message: 'Please contact the software team',
+        position: 'top-right',
+        timeout: 5000,
+      })
+    } finally {
+      dismiss()
+    }
     // -------------------------------------------------------------
-    rows.value.push({
-      id: Date.now(),
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      key: formData.value.key,
-      name: formData.value.name,
-      description: formData.value.description,
-    })
   }
 
   isDialogEditAddOpen.value = false
 }
 
-export function useDeleteRecord() {
+export async function useDeleteRecord(deparmentService: IDeparmentContract) {
+  /*
+   * Version Hardcodeada
+   * Logica previa del "Presenter"
+   */
+  // const id = idDeleteRecord.value
+
+  // rows.value = rows.value.filter((r) => r.id !== id)
+
+  // isDialogDeleteOpen.value = false
+
+  /*
+   * Version completa (sin hardcode)
+   */
   // -------------------------------------------------------------
   // Agregar aqui la logica para implementar el "delete" en la BD
-  // -------------------------------------------------------------
   const id = idDeleteRecord.value
+  let dismiss: (props?: QNotifyUpdateOptions) => void
 
-  rows.value = rows.value.filter((r) => r.id !== id)
+  try {
+    dismiss = Notify.create({
+      spinner: true,
+      type: 'info',
+      message: 'Loading...',
+      position: 'top-right',
+      timeout: 0,
+    })
 
-  isDialogDeleteOpen.value = false
+    const res = await deparmentService.deleteDepartmentById(id)
+    console.info('Resultado del API - deparmentService.deleteDepartmentById: ', res)
+
+    // Nuevo valor en el "Presenter"
+    const newVal = GetDepartmentDtoExtensions.toRecord(res)
+
+    rows.value = rows.value.filter((r) => r.id !== newVal.id)
+
+    isDialogDeleteOpen.value = false
+  } catch (error) {
+    console.error('department.composables.ts - deparmentService.deleteDepartmentById:')
+    console.error(error)
+
+    Notify.create({
+      type: 'negative',
+      message: 'Please contact the software team',
+      position: 'top-right',
+      timeout: 5000,
+    })
+  } finally {
+    dismiss()
+  }
+  // -------------------------------------------------------------
 }

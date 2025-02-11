@@ -95,7 +95,7 @@
         </q-card-section>
 
         <q-card-section>
-          <q-form @submit.prevent="useSaveRecord">
+          <q-form @submit.prevent="useSaveRecord(deparmentService)">
             <q-input v-model="formData.key" label="Key" required />
             <q-input v-model="formData.name" label="Name" required />
             <q-input v-model="formData.description" label="Description" type="textarea" required />
@@ -122,7 +122,7 @@
         </q-card-section>
 
         <q-card-section>
-          <q-form @submit.prevent="useDeleteRecord">
+          <q-form @submit.prevent="useDeleteRecord(deparmentService)">
             <div>Delete record with ID: {{ idDeleteRecord }}?</div>
 
             <div class="q-mt-md">

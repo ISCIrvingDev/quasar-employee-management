@@ -1,15 +1,12 @@
-import type { GetDepartmentDto } from '../department.dtos'
+import type { NewDepartmentDto } from '../department.dtos'
 import type { Record } from 'src/pages/deparment/deparment.models'
 
 export const NewDepartmentDtoExtensions = {
-  toRecord(getDepartmentDto: GetDepartmentDto): Record {
-    const res: Record = {
-      id: getDepartmentDto.id,
-      createdAt: getDepartmentDto.createdAt.toString(),
-      updatedAt: getDepartmentDto.updatedAt.toString(),
-      key: getDepartmentDto.key,
-      name: getDepartmentDto.name,
-      description: getDepartmentDto.description,
+  fromRecord(record: Record): NewDepartmentDto {
+    const res: NewDepartmentDto = {
+      key: record.key,
+      name: record.name,
+      description: record.description,
     }
 
     return res

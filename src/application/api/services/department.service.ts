@@ -53,7 +53,7 @@ export class DeparmentService implements IDeparmentContract {
   async createDepartment(newDepartmentDto: NewDepartmentDto): Promise<GetDepartmentDto> {
     const res = await api.post<AppResponseModel<GetDepartmentDto>>(
       `${this._baseRoute}/createDepartment`,
-      JSON.stringify(newDepartmentDto),
+      newDepartmentDto,
     )
     const data: GetDepartmentDto = res.data.data
 
@@ -66,7 +66,7 @@ export class DeparmentService implements IDeparmentContract {
   ): Promise<GetDepartmentDto> {
     const res = await api.put<AppResponseModel<GetDepartmentDto>>(
       `${this._baseRoute}/updateDepartmentById/${id}`,
-      JSON.stringify(updateDepartmentValuesDto),
+      updateDepartmentValuesDto,
     )
     const data: GetDepartmentDto = res.data.data
 
@@ -75,7 +75,7 @@ export class DeparmentService implements IDeparmentContract {
 
   async deleteDepartmentById(id: number): Promise<GetDeletedDepartmentDto> {
     const res = await api.delete<AppResponseModel<GetDeletedDepartmentDto>>(
-      `${this._baseRoute}/updateDepartmentById/${id}`,
+      `${this._baseRoute}/deleteDepartmentById/${id}`,
     )
     const data: GetDeletedDepartmentDto = res.data.data
 
