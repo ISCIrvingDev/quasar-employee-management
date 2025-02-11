@@ -19,6 +19,7 @@ import type { IDeparmentContract } from 'src/application/api/services/department
  */
 import type { QNotifyUpdateOptions } from 'quasar'
 import { Notify } from 'quasar'
+import { NewDepartmentDtoExtensions } from 'src/application/api/services/dtos/extensions/new-department-dto.extension'
 
 /*
  * Variables
@@ -68,8 +69,9 @@ export function useInit(deparmentService: IDeparmentContract) {
       const res = await deparmentService.getAllDepartments()
       console.log('1) Resultado del API: ', res)
 
-      // 2) Aqui me quede: Hacer la transformacion con class-transformer
-      rows.value = res as unknown as Record[]
+      rows.value = res.map((e) => {
+        return NewDepartmentDtoExtensions.toRecord(e)
+      })
     } catch (error) {
       console.error('department.composables.ts - deparmentService.getAllDepartments:')
       console.error(error)
