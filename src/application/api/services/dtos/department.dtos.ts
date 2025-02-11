@@ -1,3 +1,5 @@
+import { IsNotEmpty, IsString, Length } from 'class-validator'
+
 export class GetDepartmentDto {
   id: number
   createdAt: Date
@@ -7,10 +9,17 @@ export class GetDepartmentDto {
   description: string | null
 }
 
-// 1) Aqui me quede: Poner las validaciones del DTO con class-validator
 export class NewDepartmentDto {
+  @IsString({ message: 'The key must be a string' })
+  @IsNotEmpty({ message: 'The key cannot be empty' })
+  @Length(5, 5, { message: 'The key must be 5 character length' })
   key: string
 
+  @IsString({ message: 'The name must be a string' })
+  @IsNotEmpty({ message: 'The name cannot be empty' })
+  @Length(4, 35, {
+    message: 'The name must have at least 4 and maximum 35 characters',
+  })
   name: string
 
   description: string | null
