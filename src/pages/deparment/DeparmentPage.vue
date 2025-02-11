@@ -63,7 +63,7 @@
 
     <!-- Dialogo para formulario Details -->
     <q-dialog v-model="isDialogOpenDetails">
-      <q-card style="min-width: 400px">
+      <q-card class="dialog-width">
         <q-card-section>
           <div class="text-h6">Record Details</div>
         </q-card-section>
@@ -89,7 +89,7 @@
 
     <!-- Dialogo para formulario Edit/Add -->
     <q-dialog v-model="isDialogEditAddOpen">
-      <q-card style="min-width: 400px">
+      <q-card class="dialog-width">
         <q-card-section>
           <div class="text-h6">{{ editMode ? 'Edit Record' : 'Add Record' }}</div>
         </q-card-section>
@@ -116,7 +116,7 @@
 
     <!-- Dialogo para confirmar Delete -->
     <q-dialog v-model="isDialogDeleteOpen">
-      <q-card style="min-width: 400px">
+      <q-card class="dialog-width">
         <q-card-section>
           <div class="text-h6">Delete Record</div>
         </q-card-section>
