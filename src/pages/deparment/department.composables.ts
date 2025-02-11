@@ -74,8 +74,7 @@ export function useInit(deparmentService: IDeparmentContract) {
         return GetDepartmentDtoExtensions.toRecord(e)
       })
     } catch (error) {
-      console.error('department.composables.ts - deparmentService.getAllDepartments:')
-      console.error(error)
+      console.error('department.composables.ts - deparmentService.getAllDepartments: ', error)
       // const err = error as AppResponseModel<AppErrorResponseModel>
 
       Notify.create({
@@ -171,8 +170,7 @@ export async function useSaveRecord(deparmentService: IDeparmentContract) {
         // Nuevo valor en el "Presenter"
         rows.value[index] = GetDepartmentDtoExtensions.toRecord(res)
       } catch (error) {
-        console.error('department.composables.ts - deparmentService.updateDepartmentById:')
-        console.error(error)
+        console.error('department.composables.ts - deparmentService.updateDepartmentById: ', error)
 
         Notify.create({
           type: 'negative',
@@ -231,8 +229,7 @@ export async function useSaveRecord(deparmentService: IDeparmentContract) {
       //   description: newVal.description,
       // })
     } catch (error) {
-      console.error('department.composables.ts - deparmentService.updateDepartmentById:')
-      console.error(error)
+      console.error('department.composables.ts - deparmentService.createDepartment: ', error)
 
       Notify.create({
         type: 'negative',
@@ -287,8 +284,7 @@ export async function useDeleteRecord(deparmentService: IDeparmentContract) {
 
     isDialogDeleteOpen.value = false
   } catch (error) {
-    console.error('department.composables.ts - deparmentService.deleteDepartmentById:')
-    console.error(error)
+    console.error('department.composables.ts - deparmentService.deleteDepartmentById: ', error)
 
     Notify.create({
       type: 'negative',
