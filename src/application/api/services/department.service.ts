@@ -36,34 +36,49 @@ export class DeparmentService implements IDeparmentContract {
     const res = await api.get<AppResponseModel<GetDepartmentDto[]>>(
       `${this._baseRoute}/getAllDepartments`,
     )
-    const data: GetDepartmentDto[] = res.data.data as GetDepartmentDto[]
+    const data: GetDepartmentDto[] = res.data.data
 
     return data
   }
 
-  // 3) Aqui me quede: Terminar que definir el resto de los metodos del contrato
-  getDepartmentById(id: number): Promise<GetDepartmentDto> {
-    throw new Error('Method not implemented.' + id)
+  async getDepartmentById(id: number): Promise<GetDepartmentDto> {
+    const res = await api.get<AppResponseModel<GetDepartmentDto>>(
+      `${this._baseRoute}/getDepartmentById/${id}`,
+    )
+    const data: GetDepartmentDto = res.data.data
+
+    return data
   }
 
-  createDepartment(newDepartmentDto: NewDepartmentDto): Promise<GetDepartmentDto> {
-    console.log(newDepartmentDto)
+  async createDepartment(newDepartmentDto: NewDepartmentDto): Promise<GetDepartmentDto> {
+    const res = await api.post<AppResponseModel<GetDepartmentDto>>(
+      `${this._baseRoute}/createDepartment`,
+      JSON.stringify(newDepartmentDto),
+    )
+    const data: GetDepartmentDto = res.data.data
 
-    throw new Error('Method not implemented.')
+    return data
   }
 
-  updateDepartmentById(
+  async updateDepartmentById(
     id: number,
     updateDepartmentValuesDto: NewDepartmentDto,
   ): Promise<GetDepartmentDto> {
-    console.log(id)
-    console.log(updateDepartmentValuesDto)
+    const res = await api.put<AppResponseModel<GetDepartmentDto>>(
+      `${this._baseRoute}/updateDepartmentById/${id}`,
+      JSON.stringify(updateDepartmentValuesDto),
+    )
+    const data: GetDepartmentDto = res.data.data
 
-    throw new Error('Method not implemented.')
+    return data
   }
 
-  deleteDepartmentById(id: number): Promise<GetDeletedDepartmentDto> {
-    console.log(id)
-    throw new Error('Method not implemented.')
+  async deleteDepartmentById(id: number): Promise<GetDeletedDepartmentDto> {
+    const res = await api.delete<AppResponseModel<GetDeletedDepartmentDto>>(
+      `${this._baseRoute}/updateDepartmentById/${id}`,
+    )
+    const data: GetDeletedDepartmentDto = res.data.data
+
+    return data
   }
 }
