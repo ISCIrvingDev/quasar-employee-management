@@ -1,5 +1,5 @@
 import type { ValidationError } from 'class-validator'
-import type { AppInputValidationModel } from './app-input-validation.models'
+import { AppInputValidationModel } from './app-input-validation.models'
 
 /*
  * Ref:
@@ -8,36 +8,22 @@ import type { AppInputValidationModel } from './app-input-validation.models'
  * https://vuelidate-next.netlify.app/
  */
 export class AppInputValidationService {
-  validateDtoRules(errors: ValidationError[]): AppInputValidationModel {
-    let res: AppInputValidationModel = {
-      isValid: [true],
-      errors: [],
-    }
+  validateDtoRules(errors: ValidationError[]): AppInputValidationModel[] {
+    const res: AppInputValidationModel[] = []
 
-    const mappedValidations: boolean[] = []
-    const mappedErrors = errors.map((e: ValidationError) => {
-      const errors: string[] = []
+    errors.forEach((e: ValidationError) => {
+      const newAppInputValidation = new AppInputValidationModel({
+        property: e.property,
+        hasErrors: true,
+        errMsn: [],
+      })
 
-      mappedValidations.push(false)
-
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       for (const [key, value] of Object.entries(e.constraints)) {
-        errors.push(value)
+        newAppInputValidation.errMsn.push({ key, value })
       }
 
-      return errors
+      res.push(newAppInputValidation)
     })
-
-    try {
-      if (errors.length > 0) {
-        res = {
-          isValid: mappedValidations,
-          errors: mappedErrors,
-        }
-      }
-    } catch (error) {
-      console.error('Something wento rwong during the validations: ', error)
-    }
 
     return res
   }

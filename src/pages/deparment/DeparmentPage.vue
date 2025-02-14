@@ -93,24 +93,51 @@
         <q-card-section>
           <q-form @submit.prevent="useSaveRecord(appInputValidationService, deparmentService)">
             <q-input
+              ref="keyRef"
               v-model="formData.key"
               label="Key"
               required
               lazy-rules
-              :error="dtoValidations.isValid.length > 0 ? !dtoValidations.isValid[0] : true"
+              :error="
+                dtoValidations.length > 0 &&
+                dtoValidations.findIndex((val) => val.property === 'key') !== -1
+              "
             >
-              <template v-slot:error> {{ dtoValidations.errors[0] }} </template>
+              <template v-slot:error>
+                <!-- <p v-for="(value, key, index) in dtoValidations.find((val) => val.property === 'key').errMsn" :key="value.key"></p> -->
+                <p
+                  v-for="item in dtoValidations.find((val) => val.property === 'key').errMsn"
+                  :key="item.key"
+                >
+                  * {{ item.value }}
+                </p>
+              </template>
             </q-input>
+
             <q-input
+              ref="nameRef"
               v-model="formData.name"
               label="Name"
               required
               lazy-rules
-              :error="dtoValidations.isValid.length > 0 ? !dtoValidations.isValid[1] : true"
+              :error="
+                dtoValidations.length > 0 &&
+                dtoValidations.findIndex((val) => val.property === 'name') !== -1
+              "
             >
-              <template v-slot:error> {{ dtoValidations.errors[1] }} </template>
+              <template v-slot:error>
+                <!-- <p v-for="(value, key, index) in dtoValidations.find((val) => val.property === 'name').errMsn" :key="value.name"></p> -->
+                <p
+                  v-for="item in dtoValidations.find((val) => val.property === 'name').errMsn"
+                  :key="item.key"
+                >
+                  * {{ item.value }}
+                </p>
+              </template>
             </q-input>
+
             <q-input v-model="formData.description" label="Description" type="textarea" />
+
             <div class="q-mt-md">
               <q-btn type="submit" color="primary" label="Guardar" outline />
               <q-btn
@@ -120,6 +147,7 @@
                 @click="isDialogEditAddOpen = false"
                 class="q-ml-md"
               />
+              <q-btn color="primary" label="Reset" flat @click="useReset" class="q-ml-xl" />
             </div>
           </q-form>
         </q-card-section>
@@ -166,13 +194,12 @@ import {
   useOpenDialogDelete,
 
   // Validations
-  // useInitValidations,
+  useReset,
 
   // Metodos del "Service"
   useSaveRecord,
   useDeleteRecord,
 } from './department.composables'
-// import { useInitValidations } from './composables/department-validations.composable'
 
 /*
  * Constants
@@ -186,11 +213,6 @@ import type { IDeparmentContract } from 'src/application/api/services/department
 import { DeparmentKey } from 'src/application/api/services/api.keys'
 import { AppInputValidationKey } from 'src/application/validations/app-input-validation.keys'
 import type { AppInputValidationService } from 'src/application/validations/app-input-validation.services'
-
-/*
- * DTO Extensions
- */
-// import { NewDepartmentDtoExtensions } from 'src/application/api/services/dtos/extensions/new-department-dto.extension'
 
 /*
  * Services
@@ -211,8 +233,6 @@ const {
   isDialogOpenDetails,
   dtoValidations,
 } = useInit(deparmentService)
-
-// const { dtoValidations } = await useInitValidations(appInputValidationService)
 
 // Router
 const route = useRoute()

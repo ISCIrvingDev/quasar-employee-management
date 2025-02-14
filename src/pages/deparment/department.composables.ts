@@ -6,7 +6,7 @@ import type { Record } from './deparment.models'
 /*
  * Vue Reactivity
  */
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, useTemplateRef } from 'vue'
 
 /*
  * Contract
@@ -17,7 +17,7 @@ import type { IDeparmentContract } from 'src/application/api/services/department
  * Quasar Plugings:
  * Notify
  */
-import type { QNotifyUpdateOptions } from 'quasar'
+import type { QInput, QNotifyUpdateOptions } from 'quasar'
 import { Notify } from 'quasar'
 import { NewDepartmentDtoExtensions } from 'src/application/api/services/dtos/extensions/new-department-dto.extension'
 import { GetDepartmentDtoExtensions } from 'src/application/api/services/dtos/extensions/get-department-dto.extension'
@@ -47,16 +47,21 @@ const rows = ref<Record[]>([])
 const idDeleteRecord = ref<number>(0)
 
 // Valor del modal Edit/Add
-const isDialogEditAddOpen = ref(false)
+const isDialogEditAddOpen = ref<boolean>(false)
 
 // Valor del modal Delete
-const isDialogDeleteOpen = ref(false)
+const isDialogDeleteOpen = ref<boolean>(false)
 
 // Valor del modal Details
-const isDialogOpenDetails = ref(false)
+const isDialogOpenDetails = ref<boolean>(false)
 
 // Validations
-const dtoValidations = ref({ isValid: [true], errors: [] } as AppInputValidationModel)
+const dtoValidations = ref<AppInputValidationModel[]>([])
+// Validations: Reset
+// const keyRef = ref<QInput>(null)
+// const nameRef = ref<QInput>(null)
+let keyRef
+let nameRef
 
 /*
  * Variables reactivas
@@ -68,6 +73,12 @@ export function useInit(deparmentService: IDeparmentContract) {
    * Metodos del "Service"
    */
   onMounted(async () => {
+    // Validations: Reset
+    keyRef = useTemplateRef<QInput>('keyRef')
+    nameRef = useTemplateRef<QInput>('nameRef')
+    // keyRef = ref<QInput>(null)
+    // nameRef = ref<QInput>(null)
+
     let dismiss: (props?: QNotifyUpdateOptions) => void
 
     try {
@@ -116,6 +127,13 @@ export function useInit(deparmentService: IDeparmentContract) {
   }
 }
 
+export function useReset() {
+  formData.value = {}
+  dtoValidations.value = []
+  keyRef.value.resetValidation()
+  nameRef.value.resetValidation()
+}
+
 /*
  * Metodos del "Presenter"
  */
@@ -153,7 +171,7 @@ export async function useInitValidations(appInputValidationService: AppInputVali
     console.error('Something went wrong during the validations: ', error)
   }
 
-  const dtoValidated: AppInputValidationModel = appInputValidationService.validateDtoRules(errors)
+  const dtoValidated: AppInputValidationModel[] = appInputValidationService.validateDtoRules(errors)
 
   dtoValidations.value = dtoValidated
 }
@@ -167,9 +185,9 @@ export async function useSaveRecord(
 ) {
   await useInitValidations(appInputValidationService)
 
-  const isValid = dtoValidations.value.isValid
+  const hasErrors = dtoValidations.value.length > 0
 
-  if (isValid) {
+  if (!hasErrors) {
     const body = NewDepartmentDtoExtensions.fromRecord(formData.value as Record)
 
     if (editMode.value && formData.value.id) {
