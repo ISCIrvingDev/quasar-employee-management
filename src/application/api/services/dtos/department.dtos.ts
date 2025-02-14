@@ -10,6 +10,10 @@ export class GetDepartmentDto {
 }
 
 export class NewDepartmentDto {
+  public constructor(init?: Partial<NewDepartmentDto>) {
+    Object.assign(this, init)
+  }
+
   @IsString({ message: 'The key must be a string' })
   @IsNotEmpty({ message: 'The key cannot be empty' })
   @Length(5, 5, { message: 'The key must be 5 character length' })

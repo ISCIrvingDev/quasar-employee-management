@@ -71,14 +71,10 @@
         <q-card-section>
           <q-form>
             <q-input v-model="formData.key" label="Key" required readonly />
+
             <q-input v-model="formData.name" label="Name" required readonly />
-            <q-input
-              v-model="formData.description"
-              label="Description"
-              type="textarea"
-              required
-              readonly
-            />
+
+            <q-input v-model="formData.description" label="Description" type="textarea" readonly />
             <div class="q-mt-md">
               <q-btn color="primary" label="Close" @click="isDialogOpenDetails = false" outline />
             </div>
@@ -95,10 +91,26 @@
         </q-card-section>
 
         <q-card-section>
-          <q-form @submit.prevent="useSaveRecord(deparmentService)">
-            <q-input v-model="formData.key" label="Key" required />
-            <q-input v-model="formData.name" label="Name" required />
-            <q-input v-model="formData.description" label="Description" type="textarea" required />
+          <q-form @submit.prevent="useSaveRecord(appInputValidationService, deparmentService)">
+            <q-input
+              v-model="formData.key"
+              label="Key"
+              required
+              lazy-rules
+              :error="dtoValidations.isValid.length > 0 ? !dtoValidations.isValid[0] : true"
+            >
+              <template v-slot:error> {{ dtoValidations.errors[0] }} </template>
+            </q-input>
+            <q-input
+              v-model="formData.name"
+              label="Name"
+              required
+              lazy-rules
+              :error="dtoValidations.isValid.length > 0 ? !dtoValidations.isValid[1] : true"
+            >
+              <template v-slot:error> {{ dtoValidations.errors[1] }} </template>
+            </q-input>
+            <q-input v-model="formData.description" label="Description" type="textarea" />
             <div class="q-mt-md">
               <q-btn type="submit" color="primary" label="Guardar" outline />
               <q-btn
@@ -137,29 +149,54 @@
 </template>
 
 <script setup lang="ts">
+/*
+ * Vue
+ */
 import { computed, inject } from 'vue'
 import { useRoute } from 'vue-router'
+
+/*
+ * Composables
+ */
 import {
   useInit,
   // Metodos del "Presenter"
   useOpenDialogEditAdd,
   useOpenDialogDetails,
   useOpenDialogDelete,
+
+  // Validations
+  // useInitValidations,
+
   // Metodos del "Service"
   useSaveRecord,
   useDeleteRecord,
 } from './department.composables'
+// import { useInitValidations } from './composables/department-validations.composable'
+
+/*
+ * Constants
+ */
 import { columns } from './department.constants'
+
 /*
  * Contract & Keys
  */
 import type { IDeparmentContract } from 'src/application/api/services/department.contract'
 import { DeparmentKey } from 'src/application/api/services/api.keys'
+import { AppInputValidationKey } from 'src/application/validations/app-input-validation.keys'
+import type { AppInputValidationService } from 'src/application/validations/app-input-validation.services'
+
+/*
+ * DTO Extensions
+ */
+// import { NewDepartmentDtoExtensions } from 'src/application/api/services/dtos/extensions/new-department-dto.extension'
 
 /*
  * Services
  */
 const deparmentService = inject<IDeparmentContract>(DeparmentKey)
+const appInputValidationService = inject<AppInputValidationService>(AppInputValidationKey)
 
 /*
  * Vue Reactivity
@@ -172,7 +209,10 @@ const {
   isDialogEditAddOpen,
   isDialogDeleteOpen,
   isDialogOpenDetails,
+  dtoValidations,
 } = useInit(deparmentService)
+
+// const { dtoValidations } = await useInitValidations(appInputValidationService)
 
 // Router
 const route = useRoute()
